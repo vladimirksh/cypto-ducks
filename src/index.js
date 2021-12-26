@@ -1,17 +1,103 @@
-import React from 'react';
+import React from "react";
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import { useFormik } from "formik";
+
+const validate = (values) => {
+  const errors = {};
+  if (!values.firstName) {
+    errors.firstName = 'Required';
+  } else if (values.firstName.length > 15) {
+    errors.firstName = 'Must be 15 characters or less';
+  }
+
+  if (!values.lastName) {
+    errors.lastName = 'Required';
+  } else if (values.lastName.length > 20) {
+    errors.lastName = 'Must be 20 characters or less';
+  }
+
+  if (!values.email) {
+    errors.email = 'Required';
+  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
+    errors.email = 'Invalid email address';
+  }
+  return errors;
+}
+
+const SignupForm = () => {
+  const formik = useFormik({
+    initialValues: { 
+      firstName: '',
+      lastName: '',
+      email: '',
+      pass: '',},
+      validate,
+    onSubmit: values => { 
+      alert(JSON.stringify(values, null, 2));
+      console.log(values.lastName)
+    },
+  }
+  );
+  return(
+    <form onSubmit={formik.handleSubmit}>
+      <label htmlFor="firstName">First Name</label>
+      <br/>
+       <input
+         id="firstName"
+         name="firstName"
+         type="text"
+         onChange={formik.handleChange}
+         onBlur={formik.handleBlur}
+         value={formik.values.firstName}
+         placeholder="You name"
+       />
+       {formik.touched.firstName && formik.errors.firstName ? <div>{formik.errors.firstName}</div> : null}
+      <br/>
+       <label htmlFor="lastName">Last Name</label>
+       <br/>
+       <input
+         id="lastName"
+         name="lastName"
+         type="text"
+         onChange={formik.handleChange}
+         onBlur={formik.handleBlur}
+         value={formik.values.lastName}
+         placeholder="You last name"
+       />
+       {formik.touched.lastName && formik.errors.lastName ? <div>{formik.errors.lastName}</div> : null}
+      <br/>
+        <label htmlFor="email">Email</label>
+        <br/>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          value={formik.values.email}
+          placeholder="Email"
+        />
+        {formik.touched.email && formik.errors.email ? <div>{formik.errors.email}</div> : null}
+        <br/>
+        <label htmlFor="email">Password</label>
+        <br/>
+        <input
+          id="pass"
+          name="pass"
+          type="password"
+          onChange={formik.handleChange}
+          value={formik.values.pass}
+          placeholder="Password"
+        />
+        <br/>
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+      <SignupForm />
   </React.StrictMode>,
   document.getElementById('root')
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
