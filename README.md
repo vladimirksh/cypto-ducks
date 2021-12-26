@@ -26,11 +26,13 @@ ___
 ___
 ## Взаимодействие с библиотеками ##
 1. Для установки библиотек:
+
   ```npm i formik```
   
   ```npm install yup --save```
 
 2. Импортируем наши библиотеки в компонент
+
   ```import { useFormik } from "formik";```
   
   ```import * as Yup from 'yup'; ```
@@ -200,6 +202,7 @@ const SignupForm = () => {
 };
 ```
 Туториал по Formik и Yup
+
 https://formik.org/docs/tutorial
 
 https://github.com/jquense/yup#numberminlimit-number--ref-message-string--function-schema
