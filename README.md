@@ -1,70 +1,220 @@
-# Getting Started with Create React App
+# Проект: Formik-react
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Проект создан для ознакомиления c библиотеками Formik, Yup.
+Так как cоздание формы и ее валидация занимает много времени, на помощь приходят две библиотеки которые сокращают затрачиваемое время.
 
-## Available Scripts
+____
+В проекте используется **HTML, CSS, JSX**.
 
-In the project directory, you can run:
+___
+## Стек
++ HTML
++ CSS
++ JSX
 
-### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Реализация
++ React
++ Декларативный подход
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
 
-### `npm test`
+## Применяемые технологии с использованием библиотеки React
++ Разметка страницы создается в JSX.
++ Код разбит на функциональные компоненты.
++ Используются библиотеки Formix и Yup.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+___
+## Взаимодействие с библиотеками ##
+1. Для установки библиотек:
+  ```npm i formik```
+  ```npm install yup --save```
 
-### `npm run build`
+2. Импортируем наши библиотеки в компонент
+  ```import { useFormik } from "formik";```
+  ```import * as Yup from 'yup'; ```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+3. Пример: взаимодействия кода с Formik и преимущество Yup перед кастомной валидацией.
+```
+import React from 'react';
+import { useFormik } from 'formik';
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+// кастомная валидация
+const validate = values => {
+  const errors = {};
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+  if (!values.firstName) {
+    errors.firstName = 'Required';
+  } else if (values.firstName.length > 15) {
+    errors.firstName = 'Must be 15 characters or less';
+  }
 
-### `npm run eject`
+  if (!values.lastName) {
+    errors.lastName = 'Required';
+  } else if (values.lastName.length > 20) {
+    errors.lastName = 'Must be 20 characters or less';
+  }
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+  if (!values.email) {
+    errors.email = 'Required';
+  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
+    errors.email = 'Invalid email address';
+  }
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+  return errors;
+};
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+  // Передаём начальное значения формы (initialValues) в хук useFormik(), 
+  // функцию проверки (validate), которая будет вызвана, когда значения формы изменяются, 
+  // функцию отправки (onSubmit)
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+const SignupForm = () => {
+   const formik = useFormik({
+     initialValues: {
+       firstName: '',
+       lastName: '',
+       email: '',
+     },
+     validate,
+     onSubmit: values => {
+       alert(JSON.stringify(values, null, 2));
+     },
+   });
+   return (
+     <form onSubmit={formik.handleSubmit}>
+       <label htmlFor="firstName">First Name</label>
+       <input
+         id="firstName"
+         name="firstName"
+         type="text"
+         onChange={formik.handleChange}
+         onBlur={formik.handleBlur}
+         value={formik.values.firstName}
+       />
+       {formik.touched.firstName && formik.errors.firstName ? (
+         <div>{formik.errors.firstName}</div>
+       ) : null}
+ 
+       <label htmlFor="lastName">Last Name</label>
+       <input
+         id="lastName"
+         name="lastName"
+         type="text"
+         onChange={formik.handleChange}
+         onBlur={formik.handleBlur}
+         value={formik.values.lastName}
+       />
+       {formik.touched.lastName && formik.errors.lastName ? (
+         <div>{formik.errors.lastName}</div>
+       ) : null}
+ 
+       <label htmlFor="email">Email Address</label>
+       <input
+         id="email"
+         name="email"
+         type="email"
+         onChange={formik.handleChange}
+         onBlur={formik.handleBlur}
+         value={formik.values.email}
+       />
+       {formik.touched.email && formik.errors.email ? (
+         <div>{formik.errors.email}</div>
+       ) : null}
+ 
+       <button type="submit">Submit</button>
+     </form>
+   );
+ };
+ 
+```
 
-## Learn More
+В коде выше написана кастомная валидация, что бы каждый раз заного ее не писать, можно воспользоваться библиотекой Yup 
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```
+import React from 'react';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+const SignupForm = () => {
+  const formik = useFormik({
+    initialValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+    },
+    // Тееперь вместо кастомной валидации можно использовать Yup 
+    validationSchema: Yup.object({
+      firstName: Yup.string().max(15, 'Must be 15 characters or less').required('Required'),
+      lastName: Yup.string().max(20, 'Must be 20 characters or less').required('Required'),
+      email: Yup.string().email('Invalid email address').required('Required'),
+    }),
+    onSubmit: values => {
+      alert(JSON.stringify(values, null, 2));
+    },
+  });
+  return (
+    <form onSubmit={formik.handleSubmit}>
+      <label htmlFor="firstName">First Name</label>
+      <input
+        id="firstName"
+        name="firstName"
+        type="text"
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        value={formik.values.firstName}
+      />
+      {formik.touched.firstName && formik.errors.firstName ? (
+        <div>{formik.errors.firstName}</div>
+      ) : null}
 
-### Code Splitting
+      <label htmlFor="lastName">Last Name</label>
+      <input
+        id="lastName"
+        name="lastName"
+        type="text"
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        value={formik.values.lastName}
+      />
+      {formik.touched.lastName && formik.errors.lastName ? (
+        <div>{formik.errors.lastName}</div>
+      ) : null}
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+      <label htmlFor="email">Email Address</label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        value={formik.values.email}
+      />
+      {formik.touched.email && formik.errors.email ? (
+        <div>{formik.errors.email}</div>
+      ) : null}
 
-### Analyzing the Bundle Size
+      <button type="submit">Submit</button>
+    </form>
+  );
+};
+```
+Туториал по Formik и Yup
+https://formik.org/docs/tutorial
+https://github.com/jquense/yup#numberminlimit-number--ref-message-string--function-schema
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Запуск проекта ##
 
-### Making a Progressive Web App
+1. Клонировать репозиторий
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+    ```git clone https://github.com/vladimirksh/formik-react.git```
 
-### Advanced Configuration
+2. Установить зависимости
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+    ```npm install```
 
-### Deployment
+3. Для запуска используйте команды:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+    ```npm start```
+  Запуск проекта в режиме разработки. Для просмотра результатов в браузере http://localhost:3000/ После внесения изменений страница перезагрузится автоматически.
 
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+    ```npm run build```
+  Создает финальную сборку проекта, готовую для развертывания, в папке dist
